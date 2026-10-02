@@ -1,7 +1,10 @@
+name: edutrack
+
 services:
   postgres-db:
     image: postgres:16-alpine
     container_name: edutrack-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-communication_db}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -18,6 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: edutrack-communication
+    restart: unless-stopped
     environment:
       PORT: ${PORT:-8085}
       DB_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DB:-communication_db}
@@ -27,6 +31,21 @@ services:
       - "8085:8085"
     depends_on:
       - postgres-db
+    networks:
+      - edutrack-net
+
+  frontend-service:
+    build:
+      context: ../edutrack-frontend
+      dockerfile: Dockerfile
+    container_name: edutrack-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:8085/api/v1
+    depends_on:
+      - communication-service
     networks:
       - edutrack-net
 

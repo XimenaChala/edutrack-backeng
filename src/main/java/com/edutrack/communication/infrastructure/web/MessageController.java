@@ -55,4 +55,13 @@ public class MessageController {
             .toList();
         return ResponseEntity.ok(list);
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<java.util.Map<String, String>> healthCheck() {
+        return ResponseEntity.ok(java.util.Map.of(
+            "status", "UP",
+            "service", "communication-service",
+            "timestamp", java.time.Instant.now().toString()
+        ));
+    }
 }
